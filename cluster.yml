@@ -1,0 +1,62 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: demo-eks-cluster
+  region: eu-central-1
+  version: "1.23"
+
+# availabilityZones:
+#   - eu-central-1a
+#   - eu-central-1b
+#   - eu-central-1c
+
+vpc:
+  id: "vpc-0d8d5538112eedd18"
+  securityGroup: "sg-0b658bd2c0a31e76d"
+  subnets:
+    private:
+      priv-1a:
+        id: "subnet-07cc5a7ec31fd8037"
+      priv-1b:
+        id: "subnet-099cdf88c17fcf434"
+    public:
+      pub-1a: 
+        id: "subnet-040da219a6ce27dd5"
+      pub-1b: 
+        id: "subnet-04430fecda5ccfdcb"
+
+managedNodeGroups:
+  - name: dev-ng-1
+    instanceType: t2.small
+    minSize: 1
+    maxSize: 1
+    desiredCapacity: 1
+    volumeSize: 20
+    volumeEncrypted: false
+    volumeType: gp3
+    spot: true
+    privateNetworking: true
+    labels: {role: dev}
+    ssh:
+      allow: true
+      publicKeyName: mykey
+    tags:
+      Env: Dev
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+
+cloudWatch:
+  clusterLogging:
+    logRetentionInDays: 90
+    enableTypes:
+    - "api"
+    - "audit"
+    - "authenticator"
+    - "controllerManager"
+    - "scheduler"
